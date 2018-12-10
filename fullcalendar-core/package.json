@@ -1,0 +1,47 @@
+{
+  "name": "fullcalendar-core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev:styles": "parcel watch Styles/calendar.scss --out-dir wwwroot/css --no-source-maps",
+    "dev:scripts": "parcel watch Scripts/calendar.js --out-dir wwwroot/js --no-source-maps",
+    "prod:styles": "parcel build Styles/calendar.scss --out-dir wwwroot/css --out-file calendar.min.css",
+    "prod:scripts": "parcel build Scripts/calendar.js --out-dir wwwroot/js --out-file calendar.min.js",
+    "dev": "webpack --watch",
+    "build": "cross-env NODE_ENV=production webpack"
+  },
+  "author": "Esau Silva (@_esausilva)",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.2.0",
+    "@babel/preset-env": "^7.2.0",
+    "babel-loader": "^8.0.4",
+    "cross-env": "^5.2.0",
+    "css-loader": "^1.0.1",
+    "cssnano": "^4.1.7",
+    "file-loader": "^2.0.0",
+    "mini-css-extract-plugin": "^0.4.5",
+    "node-sass": "^4.10.0",
+    "parcel-bundler": "^1.10.3",
+    "postcss-loader": "^3.0.0",
+    "postcss-preset-env": "^6.4.0",
+    "sass-loader": "^7.1.0",
+    "webpack": "^4.26.1",
+    "webpack-cli": "^3.1.2"
+  },
+  "browserslist": [
+    ">0.25%",
+    "not dead",
+    "not ie <= 10",
+    "not op_mini all"
+  ],
+  "-vs-binding": {
+    "BeforeBuild": [
+      "build"
+    ],
+    "ProjectOpened": [
+      "dev"
+    ]
+  }
+}

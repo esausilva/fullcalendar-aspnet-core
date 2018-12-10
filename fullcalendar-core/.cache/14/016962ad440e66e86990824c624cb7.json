@@ -1,0 +1,1 @@
+{"id":"calendar.js","dependencies":[{"name":"E:\\MiscProjects\\fullcalendar-core\\fullcalendar-core\\package.json","includedInParent":true,"mtime":1543870375665}],"generated":{"js":"var log = function log() {\n  return console.log(\"logged full calendar in action\");\n};\n\nlog();","map":null},"hash":"6be0e09d9a24e78abc1ae6fcd96c9a23","cacheData":{"env":{}}}
