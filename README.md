@@ -43,14 +43,12 @@ For production, Webpack will minify and optimize the output files appending `*.m
 ## Implemented Features
 
 - Update existing events (Start/End Times, Description, All Day)
-
-_As of right now the calendar only reads events already stored in the database_
+- Create single day events
+- Create all day events
 
 ## Upcoming Features
 
-- Create single day events
-- Create all day events
-- Delte events
+- Delete events
 - Drag & Drop events
 - Rezise events
 
