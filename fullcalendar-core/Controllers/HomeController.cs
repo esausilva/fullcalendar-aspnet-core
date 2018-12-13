@@ -42,6 +42,17 @@ namespace fullcalendarcore.Controllers
             return Json(new { message });
         }
 
+        [HttpPost]
+        public IActionResult AddEvent([FromBody] Event evt) 
+        {
+            string message = String.Empty;
+            int eventId = 0;
+
+            message = _DA.AddEvent(evt, out eventId);
+
+            return Json(new { message, eventId });
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error() 
         {

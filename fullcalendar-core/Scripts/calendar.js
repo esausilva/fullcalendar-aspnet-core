@@ -40,7 +40,9 @@ $('#calendar').fullCalendar({
         });
     },
     events: '/Home/GetCalendarEvents',
-    eventClick: updateEvent
+    eventClick: updateEvent,
+    selectable: true,
+    select: addEvent
 });
 
 /**
@@ -54,8 +56,9 @@ function updateEvent(event, element) {
     
     $('#eventModalLabel').html('Edit Event');
     $('#eventModalSave').html('Update Event');
-    $('#eventTitle').html(`<strong>${event.title}</strong>`);
+    $('#EventTitle').val(event.title);
     $('#Description').val(event.description);
+    $('#isNewEvent').val(false);
 
     const start = formatDate(event.start);
     const end = formatDate(event.end);
@@ -75,16 +78,34 @@ function updateEvent(event, element) {
     $('#eventModal').modal('show');
 }
 
+function addEvent(start, end) {
+    $('#eventForm')[0].reset();
+
+    $('#eventModalLabel').html('Add Event');
+    $('#eventModalSave').html('Create Event');
+    $('#isNewEvent').val(true);
+
+    start = formatDate(start);
+    end = formatDate(end);
+
+    fpStartTime.setDate(start);
+    fpEndTime.setDate(end);
+
+    $('#eventModal').modal('show');
+}
+
 /**
  * Modal
  * */
 
 $('#eventModalSave').click(() => {
+    const title = $('#EventTitle').val();
     const description = $('#Description').val();
     const startTime = moment($('#StartTime').val());
     const endTime = moment($('#EndTime').val());
     const isAllDay = $('#AllDay').is(":checked");
-
+    const isNewEvent = $('#isNewEvent').val() === 'true' ? true : false;
+    
     if (startTime > endTime) {
         alert('Start Time cannot be greater than End Time');
 
@@ -95,19 +116,67 @@ $('#eventModalSave').click(() => {
         return;
     }
 
+    if (isNewEvent) {
+        sendAddEvent(title, description, startTime._i, endTime._i, isAllDay);
+    } else {
+        sendUpdateEvent(title, description, startTime._i, endTime._i, isAllDay);
+    }
+});
+
+function sendAddEvent(title, description, startTime, endTime, isAllDay) {
+    axios({
+        method: 'post',
+        url: '/Home/AddEvent',
+        data: {
+            "Title": title,
+            "Description": description,
+            "Start": startTime,
+            "End": endTime,
+            "AllDay": isAllDay
+        }
+    })
+    .then(res => {
+        const { message, eventId } = res.data;
+
+        if (message === '') {
+            const newEvent = {
+                start: startTime,
+                end: endTime,
+                allDay: isAllDay,
+                eventId,
+                title,
+                description
+            };
+
+            $('#calendar').fullCalendar('renderEvent', newEvent);
+            $('#calendar').fullCalendar('unselect');
+            
+            $('#eventModal').modal('hide');
+        } else {
+            alert(`Something went wrong: ${message}`);
+        }
+    })
+    .catch(err => alert(`Something went wrong: ${err}`));
+}
+
+function sendUpdateEvent(title, description, startTime, endTime, isAllDay) {
     axios({
         method: 'post',
         url: '/Home/UpdateEvent',
         data: {
             "EventId": currentEvent.eventId,
+            "Title": title,
             "Description": description,
-            "Start": startTime._i,
-            "End": endTime._i,
+            "Start": startTime,
+            "End": endTime,
             "AllDay": isAllDay
         }
     })
     .then(res => {
-        if (res.data.message === '') {
+        const { message } = res.data;
+
+        if (message === '') {
+            currentEvent.title = title;
             currentEvent.description = description;
             currentEvent.start = startTime;
             currentEvent.end = endTime;
@@ -116,11 +185,11 @@ $('#eventModalSave').click(() => {
             $('#calendar').fullCalendar('updateEvent', currentEvent);
             $('#eventModal').modal('hide');
         } else {
-            alert(`Something went wrong: ${res.data.message}`);
+            alert(`Something went wrong: ${message}`);
         }
     })
     .catch(err => alert(`Something went wrong: ${err}`));
-});
+}
 
 $('#AllDay').on('change', function (e) {
     if (e.target.checked) {

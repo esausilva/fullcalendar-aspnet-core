@@ -70,6 +70,7 @@ namespace fullcalendarcore.DataAccessLayer
 	                                                [Events]
                                                 set
 	                                                [description]=@description
+                                                    ,title=@title
 	                                                ,event_start=@start
 	                                                ,event_end=@end 
 	                                                ,all_day=@allDay
@@ -78,11 +79,57 @@ namespace fullcalendarcore.DataAccessLayer
                     CommandType = CommandType.Text
                 };
                 cmd.Parameters.Add("@eventId", SqlDbType.Int).Value = evt.EventId;
+                cmd.Parameters.Add("@title", SqlDbType.VarChar).Value = evt.Title;
                 cmd.Parameters.Add("@description", SqlDbType.VarChar).Value = evt.Description;
                 cmd.Parameters.Add("@start", SqlDbType.DateTime).Value = evt.Start;
                 cmd.Parameters.Add("@end", SqlDbType.DateTime).Value = Helpers.ToDBNullOrDefault(evt.End);
                 cmd.Parameters.Add("@allDay", SqlDbType.Bit).Value = evt.AllDay;
                 cmd.ExecuteNonQuery();
+
+                trans.Commit();
+            } catch (Exception exp) {
+                trans.Rollback();
+                message = exp.Message;
+            } finally {
+                CloseConnection(conn);
+            }
+
+            return message;
+        }
+
+        public string AddEvent(Event evt, out int eventId) {
+            string message = "";
+            SqlConnection conn = GetConnection();
+            SqlTransaction trans = conn.BeginTransaction();
+            eventId = 0;
+
+            try {
+                SqlCommand cmd = new SqlCommand(@"insert into [Events]
+                                                (
+	                                                title
+	                                                ,[description]
+	                                                ,event_start
+	                                                ,event_end
+	                                                ,all_day
+                                                )
+                                                values
+                                                (
+	                                                @title
+	                                                ,@description
+	                                                ,@start
+	                                                ,@end
+	                                                ,@allDay
+                                                );
+                                                select scope_identity()", conn, trans) {
+                    CommandType = CommandType.Text
+                };
+                cmd.Parameters.Add("@title", SqlDbType.VarChar).Value = evt.Title;
+                cmd.Parameters.Add("@description", SqlDbType.VarChar).Value = evt.Description;
+                cmd.Parameters.Add("@start", SqlDbType.DateTime).Value = evt.Start;
+                cmd.Parameters.Add("@end", SqlDbType.DateTime).Value = Helpers.ToDBNullOrDefault(evt.End);
+                cmd.Parameters.Add("@allDay", SqlDbType.Bit).Value = evt.AllDay;
+
+                eventId =  Convert.ToInt32(cmd.ExecuteScalar());
 
                 trans.Commit();
             } catch (Exception exp) {
