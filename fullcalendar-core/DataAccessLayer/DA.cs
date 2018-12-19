@@ -32,7 +32,12 @@ namespace fullcalendarcore.DataAccessLayer
 
             using (SqlConnection conn = GetConnection()) {
                 using (SqlCommand cmd = new SqlCommand(@"select
-                                                            event_id,title,[description],event_start,event_end,all_day
+                                                            event_id
+                                                            ,title
+                                                            ,[description]
+                                                            ,event_start
+                                                            ,event_end
+                                                            ,all_day
                                                         from
                                                             [Events]
                                                         where
@@ -130,6 +135,32 @@ namespace fullcalendarcore.DataAccessLayer
                 cmd.Parameters.Add("@allDay", SqlDbType.Bit).Value = evt.AllDay;
 
                 eventId =  Convert.ToInt32(cmd.ExecuteScalar());
+
+                trans.Commit();
+            } catch (Exception exp) {
+                trans.Rollback();
+                message = exp.Message;
+            } finally {
+                CloseConnection(conn);
+            }
+
+            return message;
+        }
+
+        public string DeleteEvent(int eventId) {
+            string message = "";
+            SqlConnection conn = GetConnection();
+            SqlTransaction trans = conn.BeginTransaction();
+
+            try {
+                SqlCommand cmd = new SqlCommand(@"delete from 
+	                                                [Events]
+                                                where
+	                                                event_id=@eventId", conn, trans) {
+                    CommandType = CommandType.Text
+                };
+                cmd.Parameters.Add("@eventId", SqlDbType.Int).Value = eventId;
+                cmd.ExecuteNonQuery();
 
                 trans.Commit();
             } catch (Exception exp) {

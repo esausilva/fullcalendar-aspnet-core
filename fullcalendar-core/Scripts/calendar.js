@@ -50,7 +50,7 @@ $('#calendar').fullCalendar({
  **/
 
 function updateEvent(event, element) {
-    currentEvent = event; 
+    currentEvent = event;
 
     if ($(this).data("qtip")) $(this).qtip("hide");
     
@@ -190,6 +190,29 @@ function sendUpdateEvent(title, description, startTime, endTime, isAllDay) {
     })
     .catch(err => alert(`Something went wrong: ${err}`));
 }
+
+$('#deleteEvent').click(() => {
+    if (confirm(`Do you really want to delte "${currentEvent.title}" event?`)) {
+        axios({
+            method: 'post',
+            url: '/Home/DeleteEvent',
+            data: {
+                "EventId": currentEvent.eventId
+            }
+        })
+        .then(res => {
+            const { message } = res.data;
+
+            if (message === '') {
+                $('#calendar').fullCalendar('removeEvents', currentEvent._id);
+                $('#eventModal').modal('hide');
+            } else {
+                alert(`Something went wrong: ${message}`);
+            }
+        })
+        .catch(err => alert(`Something went wrong: ${err}`));
+    }
+});
 
 $('#AllDay').on('change', function (e) {
     if (e.target.checked) {

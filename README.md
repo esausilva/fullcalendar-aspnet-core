@@ -42,13 +42,13 @@ For production, Webpack will minify and optimize the output files appending `*.m
 
 ## Implemented Features
 
-- Update existing events (Start/End Times, Description, All Day)
+- Update existing events
 - Create single day events
 - Create all day events
+- Delete events
 
 ## Upcoming Features
 
-- Delete events
 - Drag & Drop events
 - Rezise events
 

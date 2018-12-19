@@ -53,6 +53,15 @@ namespace fullcalendarcore.Controllers
             return Json(new { message, eventId });
         }
 
+        [HttpPost]
+        public IActionResult DeleteEvent([FromBody] Event evt) {
+            string message = String.Empty;
+
+            message = _DA.DeleteEvent(evt.EventId);
+
+            return Json(new { message });
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error() 
         {
