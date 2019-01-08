@@ -116,23 +116,31 @@ $('#eventModalSave').click(() => {
         return;
     }
 
+    const event = {
+        title,
+        description,
+        isAllDay,
+        startTime: startTime._i,
+        endTime: endTime._i
+    };
+
     if (isNewEvent) {
-        sendAddEvent(title, description, startTime._i, endTime._i, isAllDay);
+        sendAddEvent(event);
     } else {
-        sendUpdateEvent(title, description, startTime._i, endTime._i, isAllDay);
+        sendUpdateEvent(event);
     }
 });
 
-function sendAddEvent(title, description, startTime, endTime, isAllDay) {
+function sendAddEvent(event) {
     axios({
         method: 'post',
         url: '/Home/AddEvent',
         data: {
-            "Title": title,
-            "Description": description,
-            "Start": startTime,
-            "End": endTime,
-            "AllDay": isAllDay
+            "Title": event.title,
+            "Description": event.description,
+            "Start": event.startTime,
+            "End": event.endTime,
+            "AllDay": event.isAllDay
         }
     })
     .then(res => {
@@ -140,12 +148,12 @@ function sendAddEvent(title, description, startTime, endTime, isAllDay) {
 
         if (message === '') {
             const newEvent = {
-                start: startTime,
-                end: endTime,
-                allDay: isAllDay,
-                eventId,
-                title,
-                description
+                start: event.startTime,
+                end: event.endTime,
+                allDay: event.isAllDay,
+                title: event.title,
+                description: event.description,
+                eventId
             };
 
             $('#calendar').fullCalendar('renderEvent', newEvent);
@@ -159,28 +167,28 @@ function sendAddEvent(title, description, startTime, endTime, isAllDay) {
     .catch(err => alert(`Something went wrong: ${err}`));
 }
 
-function sendUpdateEvent(title, description, startTime, endTime, isAllDay) {
+function sendUpdateEvent(event) {
     axios({
         method: 'post',
         url: '/Home/UpdateEvent',
         data: {
             "EventId": currentEvent.eventId,
-            "Title": title,
-            "Description": description,
-            "Start": startTime,
-            "End": endTime,
-            "AllDay": isAllDay
+            "Title": event.title,
+            "Description": event.description,
+            "Start": event.startTime,
+            "End": event.endTime,
+            "AllDay": event.isAllDay
         }
     })
     .then(res => {
         const { message } = res.data;
 
         if (message === '') {
-            currentEvent.title = title;
-            currentEvent.description = description;
-            currentEvent.start = startTime;
-            currentEvent.end = endTime;
-            currentEvent.allDay = isAllDay;
+            currentEvent.title = event.title;
+            currentEvent.description = event.description;
+            currentEvent.start = event.startTime;
+            currentEvent.end = event.endTime;
+            currentEvent.allDay = event.isAllDay;
 
             $('#calendar').fullCalendar('updateEvent', currentEvent);
             $('#eventModal').modal('hide');
